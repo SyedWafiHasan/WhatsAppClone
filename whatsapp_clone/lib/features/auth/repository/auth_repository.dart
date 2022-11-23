@@ -1,8 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/features/auth/screens/otp_screen.dart';
+
+final authRepositoryProvider = Provider(
+  (ref) => AuthRepository(
+    firebaseAuth: FirebaseAuth.instance,
+    firebaseFirestore: FirebaseFirestore.instance,
+  ),
+);
 
 class AuthRepository {
   final FirebaseAuth firebaseAuth;
