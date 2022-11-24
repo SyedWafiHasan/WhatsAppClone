@@ -1,17 +1,23 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_clone/colors.dart';
+import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/common/widgets/custom_button.dart';
+import 'package:whatsapp_clone/features/auth/controller/auth_controller.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   static const routeName = '/loginScreen';
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+//ConsumerStatefulWidgets enable access to refs
+//Providers are used using Consumers
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final phoneController = TextEditingController();
   Country? country;
 
@@ -36,6 +42,23 @@ class _LoginScreenState extends State<LoginScreen> {
             country = _country;
           });
         });
+  }
+
+  void sendPhoneNumber() {
+    String phoneNumber = phoneController.text.trim();
+    if (country != null && phoneNumber.isNotEmpty) {
+      //ProviderRef is used to interact provider with provider
+      //WidgetRef is used to make widget interact with provider
+      String completePhoneNumber = '+${country!.phoneCode}$phoneNumber';
+      ref.read(authControllerProvider).signInWithPhone(
+            context,
+            completePhoneNumber,
+          );
+    } else if (country == null) {
+      showSnackBar(context: context, content: "Please select your country.");
+    } else if (phoneNumber.isEmpty) {
+      showSnackBar(context: context, content: "Please enter your phone number.");
+    }
   }
 
   @override
@@ -92,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // width: size.width * 0.2,
               width: 90,
               child: CustomButton(
-                onPressed: () {},
+                onPressed: sendPhoneNumber,
                 text: "Next",
               ),
             )
