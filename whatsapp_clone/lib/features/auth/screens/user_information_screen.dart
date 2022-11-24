@@ -6,6 +6,13 @@ class UserInformationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("User Verification Screen"),
+      ),
+      body: const Center(
+        child: Text("User has been verified"),
+      ),
+    );
   }
 }
