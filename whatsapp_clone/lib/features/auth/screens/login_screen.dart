@@ -98,6 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         decoration: const InputDecoration(
                           hintText: 'Phone Number',
                         ),
+                        keyboardType: TextInputType.number,
                       ),
                     ),
                   ],
