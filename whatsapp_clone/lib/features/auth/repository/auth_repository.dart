@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
@@ -62,6 +64,23 @@ class AuthRepository {
         UserInformationScreen.routeName,
         (route) => false,
       );
+    } catch (e) {
+      showSnackBar(context: context, content: e.toString());
+    }
+  }
+
+  void saveUserDataToFirebase({
+    required String name,
+    required File? profilePic,
+    required ProviderRef ref,
+    required BuildContext context,
+  }) async {
+    try {
+      String uid = firebaseAuth.currentUser!.uid;
+      String? photoUrl = null;
+      if(profilePic != null) {
+
+      }
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }

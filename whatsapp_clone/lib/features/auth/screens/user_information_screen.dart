@@ -1,4 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:whatsapp_clone/colors.dart';
+import 'package:whatsapp_clone/common/utils/utils.dart';
 
 class UserInformationScreen extends StatefulWidget {
   static const String routeName = '/user-information';
@@ -10,11 +16,17 @@ class UserInformationScreen extends StatefulWidget {
 
 class _UserInformationScreenState extends State<UserInformationScreen> {
   final TextEditingController nameController = TextEditingController();
+  File? image;
 
   @override
   void dispose() {
     super.dispose();
     nameController.dispose();
+  }
+
+  void selectImage() async {
+    image = await pickImageFromGallery(context);
+    setState(() {});
   }
 
   @override
@@ -27,17 +39,25 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
             children: [
               Stack(
                 children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: NetworkImage('https://picsum.photos/id/9/1920/1080'),
-                    radius: 64,
-                    //child: Icon(Icons.add_a_photo),
-                  ),
+                  image == null
+                      ? const CircleAvatar(
+                          backgroundColor: appBarColor,
+                          // backgroundImage: AssetImage('assets/person.png'),
+                          radius: 64,
+                          child: Icon(
+                            Icons.person,
+                            size: 96,
+                          ),
+                        )
+                      : CircleAvatar(
+                          backgroundImage: FileImage(image!),
+                          radius: 64,
+                        ),
                   Positioned(
                     bottom: -10,
                     left: 80,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: selectImage,
                       icon: const Icon(Icons.add_a_photo),
                     ),
                   ),
@@ -50,11 +70,17 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
                     padding: const EdgeInsets.all(20),
                     child: TextField(
                       controller: nameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Enter your name',
                       ),
                     ),
-                  )
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.done,
+                    ),
+                  ),
                 ],
               )
             ],
