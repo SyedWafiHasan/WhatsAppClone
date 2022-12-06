@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_clone/common/repository/common_firebase_storage_repository.dart';
 import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/features/auth/screens/otp_screen.dart';
 import 'package:whatsapp_clone/features/auth/screens/user_information_screen.dart';
+import 'package:whatsapp_clone/models/user_model.dart';
+import 'package:whatsapp_clone/screens/mobile_screen_layout.dart';
 
 final authRepositoryProvider = Provider(
   (ref) => AuthRepository(
@@ -24,6 +26,19 @@ class AuthRepository {
     required this.firebaseAuth,
     required this.firebaseFirestore,
   });
+
+  Future<UserModel?> getCurrentUserData() async {
+    var userData = await firebaseFirestore
+        .collection('users')
+        .doc(firebaseAuth.currentUser?.uid)
+        .get();
+
+    UserModel? user;
+    if (userData.data() != null) {
+      user = UserModel.fromMap(userData.data()!);
+    }
+    return user;
+  }
 
   void signInWithPhone(BuildContext context, String phoneNumber) async {
     try {
@@ -78,13 +93,33 @@ class AuthRepository {
   }) async {
     try {
       String uid = firebaseAuth.currentUser!.uid;
-      String? photoUrl = null;
+      String photoUrl = 'null';
       if (profilePic != null) {
-       photoUrl = await ref.read(commonFirebaseStorageRepositoryProvider).storeFileToFirebase(
+        photoUrl = await ref
+            .read(commonFirebaseStorageRepositoryProvider)
+            .storeFileToFirebase(
               'profilePic/$uid',
               profilePic,
             );
       }
+
+      var user = UserModel(
+        name: name,
+        uid: uid,
+        profilePic: photoUrl,
+        isOnline: true,
+        phoneNumber: firebaseAuth.currentUser!.uid,
+        groupId: [],
+      );
+
+      await firebaseFirestore.collection('users').doc(uid).set(user.toMap());
+
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MobileScreenLayout(),
+          ),
+          (route) => false);
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
