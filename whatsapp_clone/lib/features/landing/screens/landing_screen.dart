@@ -19,7 +19,7 @@ class LandingScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Loader(),
+            //const Loader(),
             const SizedBox(height: 50),
             const Text(
               'Welcome to WhatsApp',
