@@ -108,7 +108,7 @@ class AuthRepository {
         uid: uid,
         profilePic: photoUrl,
         isOnline: true,
-        phoneNumber: firebaseAuth.currentUser!.uid,
+        phoneNumber: firebaseAuth.currentUser!.phoneNumber!,
         groupId: [],
       );
 
