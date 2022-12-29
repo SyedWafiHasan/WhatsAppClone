@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:uuid/uuid.dart';
+import 'package:whatsapp_clone/common/enums/message_enum.dart';
 import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/models/chat_contact.dart';
+import 'package:whatsapp_clone/models/message.dart';
 import 'package:whatsapp_clone/models/user_model.dart';
 
 class ChatRepository {
@@ -67,8 +70,20 @@ class ChatRepository {
     required String messageId,
     required String senderUsername,
     required String receiverUsername,
+    required MessageEnum messageType,
   }) async {
-    
+    final message = Message(
+      senderId: auth.currentUser!.uid,
+      receiverId: receiverUserId,
+      text: textMessage,
+      messageType: messageType,
+      timeSent: timeSent,
+      messageId: messageId,
+      isSeen: false,
+    );
+    // users -> sender id -> receiver id -> messages
+    // -> message id -> store message
+
   }
 
   void sendTextMessage({
@@ -77,8 +92,6 @@ class ChatRepository {
     required String receiverUserId,
     required UserModel senderUser,
   }) async {
-    // users -> sender id -> receiver id -> messages
-    // -> message id -> store message
 
     try {
       DateTime timeSent = DateTime.now();
@@ -88,6 +101,8 @@ class ChatRepository {
           await firestore.collection('users').doc(receiverUserId).get();
 
       receiverUserData = UserModel.fromMap(userDataMap.data()!);
+
+      var messageId = const Uuid().v1();
 
       // users -> receiver user id -> chats
       // -> current user id -> set data
@@ -100,7 +115,15 @@ class ChatRepository {
         receiverUserId,
       );
 
-      _saveMessageToMessageSubcollection();
+      _saveMessageToMessageSubcollection(
+        receiverUserId: receiverUserId,
+        textMessage: textMessage,
+        timeSent: timeSent,
+        messageType: MessageEnum.text,
+        messageId: messageId,
+        receiverUsername: receiverUserData.name,
+        senderUsername: senderUser.name,
+      );
     } catch (e) {
       showSnackBar(
         context: context,
