@@ -1,19 +1,52 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:whatsapp_clone/colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BottomChatField extends StatefulWidget {
+import 'package:whatsapp_clone/colors.dart';
+import 'package:whatsapp_clone/common/utils/utils.dart';
+import 'package:whatsapp_clone/features/chat/controller/chat_controller.dart';
+
+class BottomChatField extends ConsumerStatefulWidget {
+  final String receiverUserId;
   const BottomChatField({
     Key? key,
+    required this.receiverUserId,
   }) : super(key: key);
 
   @override
-  State<BottomChatField> createState() => _BottomChatFieldState();
+  ConsumerState<BottomChatField> createState() => _BottomChatFieldState();
 }
 
-class _BottomChatFieldState extends State<BottomChatField> {
+class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   bool showSendButton = false;
+  final TextEditingController _messageController = TextEditingController();
+
+  void sendTextMessage() async {
+    if (showSendButton) {
+      ref.read(chatControllerProvider).sendTextMessage(
+            context,
+            _messageController.text.trim(),
+            widget.receiverUserId,
+          );
+
+      setState(() {
+        _messageController.text = "";
+      });
+    }
+  }
+
+  void sendVoiceMessage() async {
+    showSnackBar(
+      context: context,
+      content: "Voice message functionality has not been implemented yet.",
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _messageController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -22,9 +55,12 @@ class _BottomChatFieldState extends State<BottomChatField> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: TextField(
-              style: const TextStyle(fontSize: 20,),
+              controller: _messageController,
+              style: const TextStyle(
+                fontSize: 20,
+              ),
               onChanged: (value) {
-                if (value.isNotEmpty) {
+                if (value.trim().isNotEmpty) {
                   setState(() {
                     showSendButton = true;
                   });
@@ -91,9 +127,13 @@ class _BottomChatFieldState extends State<BottomChatField> {
           child: CircleAvatar(
             backgroundColor: const Color(0xFF128C7E),
             radius: 25,
-            child: Icon(
-              showSendButton ? Icons.send : Icons.mic,
-              color: whiteColor,
+            child: GestureDetector(
+              onTap: sendTextMessage,
+              onDoubleTap: sendVoiceMessage,
+              child: Icon(
+                showSendButton ? Icons.send : Icons.mic,
+                color: whiteColor,
+              ),
             ),
           ),
         ),
